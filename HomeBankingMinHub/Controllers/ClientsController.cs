@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HomeBankingMinHub.Controllers
 {
-    [Route("api/Clients")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ClientsController : ControllerBase
     {

@@ -4,6 +4,7 @@ using HomeBankingMinHub.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeBankingMinHub.Migrations
 {
     [DbContext(typeof(HomeBankingContext))]
-    partial class HomeBankingContextModelSnapshot : ModelSnapshot
+    [Migration("20240219130627_addTransactionEntity")]
+    partial class addTransactionEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,7 +85,10 @@ namespace HomeBankingMinHub.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("AccountId")
+                    b.Property<long?>("AccountId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("AcountId")
                         .HasColumnType("bigint");
 
                     b.Property<double>("Amount")
@@ -119,9 +125,7 @@ namespace HomeBankingMinHub.Migrations
                 {
                     b.HasOne("HomeBankingMinHub.Models.Account", null)
                         .WithMany("Transactions")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AccountId");
                 });
 
             modelBuilder.Entity("HomeBankingMinHub.Models.Account", b =>
