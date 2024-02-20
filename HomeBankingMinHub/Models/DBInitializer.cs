@@ -176,6 +176,233 @@
                 }
 
             }
+            if (!context.Loans.Any())
+            {
+                var loans = new Loan[]
+                {
+                    new Loan { Name = "Hipotecario", MaxAmount = 500000, Payments = "12,24,36,48,60" },
+                    new Loan { Name = "Personal", MaxAmount = 100000, Payments = "6,12,24" },
+                    new Loan { Name = "Automotriz", MaxAmount = 300000, Payments = "6,12,24,36" },
+                };
+                foreach (Loan loan in loans)
+                {
+                    context.Loans.Add(loan);
+                }
+                context.SaveChanges();
+
+                var client1 = context.Clients.FirstOrDefault(c => c.Email == "vcoronado@gmail.com");
+                if (client1 != null)
+                {
+                    var loan1 = context.Loans.FirstOrDefault(l => l.Name == "Hipotecario");
+                    if (loan1 != null)
+                    {
+                        var clientLoan1 = new ClientLoan
+                        {
+                            Amount = 400000,
+                            ClientId = client1.Id,
+                            LoanId = loan1.Id,
+                            Payments = "60"
+                        };
+                        context.ClientLoans.Add(clientLoan1);
+                    }
+                    var loan2 = context.Loans.FirstOrDefault(l => l.Name == "Personal");
+                    if (loan2 != null)
+                    {
+                        var clientLoan2 = new ClientLoan
+                        {
+                            Amount = 50000,
+                            ClientId = client1.Id,
+                            LoanId = loan2.Id,
+                            Payments = "12"
+                        };
+                        context.ClientLoans.Add(clientLoan2);
+                    }
+                    var loan3 = context.Loans.FirstOrDefault(l => l.Name == "Automotriz");
+                    if (loan3 != null)
+                    {
+                        var clientLoan3 = new ClientLoan
+                        {
+                            Amount = 100000,
+                            ClientId = client1.Id,
+                            LoanId = loan3.Id,
+                            Payments = "24"
+                        };
+                        context.ClientLoans.Add(clientLoan3);
+                    }
+                    context.SaveChanges();
+
+                }
+                var client2 = context.Clients.FirstOrDefault(c => c.Email == "jperez@gmail.com");
+                if (client2 != null)
+                {
+                    var loan1 = context.Loans.FirstOrDefault(l => l.Name == "Hipotecario");
+                    if (loan1 != null)
+                    {
+                        var clientLoan1 = new ClientLoan
+                        {
+                            Amount = 500000,
+                            ClientId = client2.Id,
+                            LoanId = loan1.Id,
+                            Payments = "48"
+                        };
+                        context.ClientLoans.Add(clientLoan1);
+                    }
+                    var loan2 = context.Loans.FirstOrDefault(l => l.Name == "Personal");
+                    if (loan2 != null)
+                    {
+                        var clientLoan2 = new ClientLoan
+                        {
+                            Amount = 20000,
+                            ClientId = client2.Id,
+                            LoanId = loan2.Id,
+                            Payments = "6"
+                        };
+                        context.ClientLoans.Add(clientLoan2);
+                    }
+                    var loan3 = context.Loans.FirstOrDefault(l => l.Name == "Automotriz");
+                    if (loan3 != null)
+                    {
+                        var clientLoan3 = new ClientLoan
+                        {
+                            Amount = 150000,
+                            ClientId = client2.Id,
+                            LoanId = loan3.Id,
+                            Payments = "12"
+                        };
+                        context.ClientLoans.Add(clientLoan3);
+                    }
+                    context.SaveChanges();
+
+                }
+                var client3 = context.Clients.FirstOrDefault(c => c.Email == "ppicapiedra@gmail.co");
+                if (client3 != null)
+                {
+                    var loan1 = context.Loans.FirstOrDefault(l => l.Name == "Hipotecario");
+                    if (loan1 != null)
+                    {
+                        var clientLoan1 = new ClientLoan
+                        {
+                            Amount = 300000,
+                            ClientId = client3.Id,
+                            LoanId = loan1.Id,
+                            Payments = "36"
+                        };
+                        context.ClientLoans.Add(clientLoan1);
+                    }
+                    var loan2 = context.Loans.FirstOrDefault(l => l.Name == "Personal");
+                    if (loan2 != null)
+                    {
+                        var clientLoan2 = new ClientLoan
+                        {
+                            Amount = 100000,
+                            ClientId = client3.Id,
+                            LoanId = loan2.Id,
+                            Payments = "24"
+                        };
+                        context.ClientLoans.Add(clientLoan2);
+                    }
+                    var loan3 = context.Loans.FirstOrDefault(l => l.Name == "Automotriz");
+                    if (loan3 != null)
+                    {
+                        var clientLoan3 = new ClientLoan
+                        {
+                            Amount = 30000,
+                            ClientId = client3.Id,
+                            LoanId = loan3.Id,
+                            Payments = "6"
+                        };
+                        context.ClientLoans.Add(clientLoan3);
+                    }
+                    context.SaveChanges();
+
+                }
+                var client4 = context.Clients.FirstOrDefault(c => c.Email == "pcalvo@gmail.com");
+                if (client4 != null)
+                {
+                    var loan1 = context.Loans.FirstOrDefault(l => l.Name == "Hipotecario");
+                    if (loan1 != null)
+                    {
+                        var clientLoan1 = new ClientLoan
+                        {
+                            Amount = 500000,
+                            ClientId = client4.Id,
+                            LoanId = loan1.Id,
+                            Payments = "24"
+                        };
+                        context.ClientLoans.Add(clientLoan1);
+                    }
+                    var loan2 = context.Loans.FirstOrDefault(l => l.Name == "Personal");
+                    if (loan2 != null)
+                    {
+                        var clientLoan2 = new ClientLoan
+                        {
+                            Amount = 50000,
+                            ClientId = client4.Id,
+                            LoanId = loan2.Id,
+                            Payments = "12"
+                        };
+                        context.ClientLoans.Add(clientLoan2);
+                    }
+                    var loan3 = context.Loans.FirstOrDefault(l => l.Name == "Automotriz");
+                    if (loan3 != null)
+                    {
+                        var clientLoan3 = new ClientLoan
+                        {
+                            Amount = 50000,
+                            ClientId = client4.Id,
+                            LoanId = loan3.Id,
+                            Payments = "6"
+                        };
+                        context.ClientLoans.Add(clientLoan3);
+                    }
+                    context.SaveChanges();
+
+                }
+                var client5 = context.Clients.FirstOrDefault(c => c.Email == "iprado@gmail.com");
+                if (client5 != null)
+                {
+                    var loan1 = context.Loans.FirstOrDefault(l => l.Name == "Hipotecario");
+                    if (loan1 != null)
+                    {
+                        var clientLoan1 = new ClientLoan
+                        {
+                            Amount = 300000,
+                            ClientId = client5.Id,
+                            LoanId = loan1.Id,
+                            Payments = "12"
+                        };
+                        context.ClientLoans.Add(clientLoan1);
+                    }
+                    var loan2 = context.Loans.FirstOrDefault(l => l.Name == "Personal");
+                    if (loan2 != null)
+                    {
+                        var clientLoan2 = new ClientLoan
+                        {
+                            Amount = 50000,
+                            ClientId = client5.Id,
+                            LoanId = loan2.Id,
+                            Payments = "6"
+                        };
+                        context.ClientLoans.Add(clientLoan2);
+                    }
+                    var loan3 = context.Loans.FirstOrDefault(l => l.Name == "Automotriz");
+                    if (loan3 != null)
+                    {
+                        var clientLoan3 = new ClientLoan
+                        {
+                            Amount = 300000,
+                            ClientId = client5.Id,
+                            LoanId = loan3.Id,
+                            Payments = "36"
+                        };
+                        context.ClientLoans.Add(clientLoan3);
+                    }
+                    context.SaveChanges();
+
+                }
+
+            }
+
         }
     }
 }
