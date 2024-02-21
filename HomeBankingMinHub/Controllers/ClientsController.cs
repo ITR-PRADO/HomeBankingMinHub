@@ -38,7 +38,7 @@ namespace HomeBankingMinHub.Controllers
                             CreationDate = ac.CreationDate,
                             Number = ac.Number
                         }).ToList(),
-                        Loans = client.ClientLoans.Select(cl => new ClientLoanDTO
+                        Credits = client.ClientLoans.Select(cl => new ClientLoanDTO
                         {
                             Id = cl.Id,
                             LoanId = cl.LoanId,
@@ -92,7 +92,7 @@ namespace HomeBankingMinHub.Controllers
                         CreationDate = ac.CreationDate,
                         Number = ac.Number
                     }).ToList(),
-                    Loans = client.ClientLoans.Select(cl => new ClientLoanDTO
+                    Credits = client.ClientLoans.Select(cl => new ClientLoanDTO
                     {
                         Id = cl.Id,
                         LoanId = cl.LoanId,
