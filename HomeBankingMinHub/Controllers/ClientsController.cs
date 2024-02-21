@@ -50,12 +50,12 @@ namespace HomeBankingMinHub.Controllers
                         {
                             Id = c.Id,
                             CardHolder = c.CardHolder,
-                            Color = c.Color,
+                            Color = c.Color.ToString(),
                             Cvv = c.Cvv,
                             FromDate = c.FromDate,
                             Number = c.Number,
                             ThruDate = c.ThruDate,
-                            Type = c.Type
+                            Type = c.Type.ToString()
                         }).ToList()
                     };                    
                     clientsDTO.Add(newClientDTO);
@@ -104,12 +104,12 @@ namespace HomeBankingMinHub.Controllers
                     {
                         Id = c.Id,
                         CardHolder = c.CardHolder,
-                        Color = c.Color,
+                        Color = c.Color.ToString(),
                         Cvv = c.Cvv,
                         FromDate = c.FromDate,
                         Number = c.Number,
                         ThruDate = c.ThruDate,
-                        Type = c.Type
+                        Type = c.Type.ToString()
                     }).ToList()
                 };
 
