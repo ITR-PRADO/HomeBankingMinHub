@@ -1,6 +1,7 @@
 ﻿using HomeBankingMinHub.Dtos;
 using HomeBankingMinHub.Models;
 using HomeBankingMinHub.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ namespace HomeBankingMinHub.Controllers
             _accountRepository = accountRepository;
         }
 
+        [Authorize(policy: "Admin")]
         [HttpGet]
         public IActionResult Get()
         {
@@ -51,15 +53,25 @@ namespace HomeBankingMinHub.Controllers
             }
         }
 
+        [Authorize(policy: "ClientOnly")]
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
             try
-            {
+            {              
                 var account = _accountRepository.FindById(id);
                 if (account == null)
                 {
                     return Forbid();
+                }
+                //llamo al claim donde guarde el id del cliente
+                //para asegurar que la cuenta pertenece a el comparando valores
+                var idUser = User.FindFirst("IdClient") != null ?
+                    User.FindFirst("IdClient").Value : string.Empty;
+                if (!String.Equals(account.ClientId.ToString(), idUser))
+                {
+                    //en caso de no coincidir devuelvo unauthorized
+                    return Unauthorized();
                 }
 
                 var accountDTO = new AccountDTO

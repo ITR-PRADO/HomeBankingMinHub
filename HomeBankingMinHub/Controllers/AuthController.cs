@@ -26,12 +26,14 @@ namespace HomeBankingMinHub.Controllers
                 Client user = _clientRepository.FindByEmail(client.Email);
                 if (user == null || !String.Equals(user.Password, client.Password))
                 {
-                    return Unauthorized();
+                    return Unauthorized();               
                 }
+
 
                 var claims = new List<Claim>
                 {
                     new Claim("Client", user.Email),
+                    new Claim("IdClient",user.Id.ToString()),
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

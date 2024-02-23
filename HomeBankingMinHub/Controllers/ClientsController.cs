@@ -1,6 +1,7 @@
 ﻿using HomeBankingMinHub.Dtos;
 using HomeBankingMinHub.Models;
 using HomeBankingMinHub.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +16,8 @@ namespace HomeBankingMinHub.Controllers
         {
             _clientRepository = clientRepository;
         }
-
+        
+        [Authorize(policy: "Admin")]
         [HttpGet]
         public IActionResult Get()
         {
@@ -68,7 +70,8 @@ namespace HomeBankingMinHub.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
+        
+        [Authorize(policy: "Admin")]
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
@@ -122,7 +125,8 @@ namespace HomeBankingMinHub.Controllers
             }
 
         }
-
+        
+        [Authorize(policy: "ClientOnly")]
         [HttpGet("current")]
         public IActionResult GetCurrent()
         {
@@ -185,13 +189,11 @@ namespace HomeBankingMinHub.Controllers
         {
             try
             {
-                if(String.IsNullOrEmpty(client.Email) ||
-                    String.IsNullOrEmpty(client.Password) ||
-                    String.IsNullOrEmpty(client.FirstName) ||
-                    String.IsNullOrEmpty(client.LastName))
-                {
-                    return StatusCode(403, "datos invalidos");
-                }
+                if(String.IsNullOrEmpty(client.Email)) return StatusCode(403, "Email vacío");
+                if(String.IsNullOrEmpty(client.Password)) return StatusCode(403, "Password vacía");
+                if(String.IsNullOrEmpty(client.FirstName)) return StatusCode(403, "FirstName vacío");
+                if(String.IsNullOrEmpty(client.LastName)) return StatusCode(403, "LastName vacío");
+
                 Client user = _clientRepository.FindByEmail(client.Email);
                 if(user != null)
                 {
