@@ -1,7 +1,9 @@
-﻿namespace HomeBankingMinHub.Models
+﻿using HomeBankingMinHub.Models;
+
+namespace HomeBankingMinHub.Dtos
 {
     public class TransactionDTO
-    {      
+    {
         public long Id { get; set; }
         public TransactionType Type { get; set; }
         public double Amount { get; set; }
