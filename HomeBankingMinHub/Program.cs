@@ -40,8 +40,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 //autorización
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("ClientOnly", policy => policy.RequireClaim("Client"));
-    options.AddPolicy("Admin", policy => policy.RequireClaim("Admin"));
+    options.AddPolicy("ClientOnly", policy => policy.RequireClaim("CLIENT"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireClaim("ADMIN"));
 });
 
 

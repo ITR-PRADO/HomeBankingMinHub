@@ -28,11 +28,9 @@ namespace HomeBankingMinHub.Controllers
                 {
                     return Unauthorized();               
                 }
-
-
                 var claims = new List<Claim>
                 {
-                    new Claim("Client", user.Email),
+                    new Claim(user.Rol.ToString(), user.Email),
                     new Claim("IdClient",user.Id.ToString()),
                 };
 

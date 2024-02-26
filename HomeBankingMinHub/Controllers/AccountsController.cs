@@ -17,7 +17,7 @@ namespace HomeBankingMinHub.Controllers
             _accountRepository = accountRepository;
         }
 
-        [Authorize(policy: "Admin")]
+        [Authorize(policy: "AdminOnly")]
         [HttpGet]
         public IActionResult Get()
         {
@@ -73,7 +73,6 @@ namespace HomeBankingMinHub.Controllers
                     //en caso de no coincidir devuelvo unauthorized
                     return Unauthorized();
                 }
-
                 var accountDTO = new AccountDTO
                 {
                     Id = account.Id,

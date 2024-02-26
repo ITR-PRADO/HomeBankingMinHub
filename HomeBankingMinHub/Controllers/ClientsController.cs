@@ -17,7 +17,7 @@ namespace HomeBankingMinHub.Controllers
             _clientRepository = clientRepository;
         }
         
-        [Authorize(policy: "Admin")]
+        [Authorize(policy: "AdminOnly")]
         [HttpGet]
         public IActionResult Get()
         {
@@ -71,7 +71,7 @@ namespace HomeBankingMinHub.Controllers
             }
         }
         
-        [Authorize(policy: "Admin")]
+        [Authorize(policy: "AdminOnly")]
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
@@ -193,7 +193,7 @@ namespace HomeBankingMinHub.Controllers
                 if(String.IsNullOrEmpty(client.Password)) return StatusCode(403, "Password vacía");
                 if(String.IsNullOrEmpty(client.FirstName)) return StatusCode(403, "FirstName vacío");
                 if(String.IsNullOrEmpty(client.LastName)) return StatusCode(403, "LastName vacío");
-
+                
                 Client user = _clientRepository.FindByEmail(client.Email);
                 if(user != null)
                 {
@@ -205,6 +205,7 @@ namespace HomeBankingMinHub.Controllers
                     Password = client.Password,
                     FirstName = client.FirstName,
                     LastName = client.LastName,
+                    Rol = client.Rol,
                 };
                 _clientRepository.Save(newClient);
                 return Created("", newClient);
