@@ -7,5 +7,7 @@ namespace HomeBankingMinHub.Repositories
         IEnumerable<Account> GetAllAccounts();
         void Save(Account account);
         Account FindById(long id);
+        IEnumerable<Account> GetAccountsByClient(long clientId);
+        bool Exist(string numberAccount);
     }
 }

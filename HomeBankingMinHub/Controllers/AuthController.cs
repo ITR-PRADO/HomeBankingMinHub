@@ -32,6 +32,7 @@ namespace HomeBankingMinHub.Controllers
                 {
                     new Claim(user.Rol.ToString(), user.Email),
                     new Claim("IdClient",user.Id.ToString()),
+                    new Claim("NameClient",user.FirstName+" "+user.LastName),
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
