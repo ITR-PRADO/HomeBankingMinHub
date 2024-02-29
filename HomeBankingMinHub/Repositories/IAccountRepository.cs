@@ -9,5 +9,7 @@ namespace HomeBankingMinHub.Repositories
         Account FindById(long id);
         IEnumerable<Account> GetAccountsByClient(long clientId);
         bool Exist(string numberAccount);
+        Account FindByNumber(string number);
+
     }
 }
