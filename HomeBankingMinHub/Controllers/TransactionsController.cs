@@ -36,7 +36,8 @@ namespace HomeBankingMinHub.Controllers
                 {
                     var idUser = long.Parse(User.FindFirst("IdClient") != null ?
                         User.FindFirst("IdClient").Value : string.Empty);
-                    if ( transferDTO.Amount==0|| transferDTO.Description.IsNullOrEmpty()) return Forbid("Datos incompletos");
+
+                    if ( transferDTO.Amount<=0|| transferDTO.Description.IsNullOrEmpty()) return Forbid("Datos incompletos");
 
                     if(transferDTO.FromAccountNumber.IsNullOrEmpty()||transferDTO.ToAccountNumber.IsNullOrEmpty()) return Forbid("Datos de numero de cuenta vacios");
 
