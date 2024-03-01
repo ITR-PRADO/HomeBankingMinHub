@@ -203,7 +203,19 @@ namespace HomeBankingMinHub.Controllers
                 if(user != null)
                 {
                     return StatusCode(403, "El Email esta en uso");
-                }
+                }                
+                string numberAccount;
+                do
+                {
+                    numberAccount = Number.GenerateAccountNumber();
+                } while (_accountRepository.Exist(numberAccount));
+                List<Account> accounts = new List<Account>();
+                accounts.Add(new Account
+                {
+                    Number = numberAccount,
+                    CreationDate = DateTime.Now,
+                    Balance = 0
+                });
                 Client newClient = new Client
                 {
                     Email = client.Email,
@@ -211,7 +223,8 @@ namespace HomeBankingMinHub.Controllers
                     FirstName = client.FirstName,
                     LastName = client.LastName,
                     Rol = client.Rol,
-                };
+                    Accounts= accounts
+                };              
                 _clientRepository.Save(newClient);
                 return Created("", newClient);
             }
@@ -291,12 +304,10 @@ namespace HomeBankingMinHub.Controllers
                 }
                 else
                 {
-                    int randomnumber = 0;
                     string numberAccount;
                     do
                     {
-                        randomnumber = Number.RandomNumber(0, 99999999);
-                        numberAccount = "VIN-" + randomnumber.ToString("D8");
+                        numberAccount = Number.GenerateAccountNumber();
                     } while (_accountRepository.Exist(numberAccount));
                     var newAccount = new Account
                     {
@@ -332,22 +343,10 @@ namespace HomeBankingMinHub.Controllers
                     return StatusCode(403, "El Cliente ya posee una tarjeta de "+cardParam.Type+" de color "+cardParam.Color);
                 }
             }
-            int randomnumber = 0;
             string numberCard="";
             do
             {
-            for(int i = 0; i <= 4; i++)
-            {
-                randomnumber = Number.RandomNumber(0, 9999);
-                    if (i > 2)
-                    {
-                        numberCard =numberCard+randomnumber.ToString("D4");
-                    }
-                    else
-                    {
-                        numberCard =numberCard+randomnumber.ToString("D4")+"-";
-                    }
-            }                    
+                numberCard = Number.GenerateCreditNumber();
             }while(_cardRepository.Exist(numberCard));
 
             Client client = _clientRepository.FindById(idUser);
@@ -358,7 +357,7 @@ namespace HomeBankingMinHub.Controllers
                Color=cardColor,
                ClientId=client.Id,
                Number=numberCard,
-               Cvv=Number.RandomNumber(100,999),
+               Cvv=Number.GenerateCvv(),
                FromDate=DateTime.Now,
                ThruDate=DateTime.Now.AddYears(5),
 

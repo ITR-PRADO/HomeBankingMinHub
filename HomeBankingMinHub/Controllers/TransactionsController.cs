@@ -13,15 +13,11 @@ namespace HomeBankingMinHub.Controllers
     [ApiController]
     public class TransactionsController : ControllerBase
     {
-        private IClientRepository _clientRepository;
         private IAccountRepository _accountRepository;
-        private ITransactionRepository _transactionRepository;
         private HomeBankingContext _homeBankingContext;
-        public TransactionsController(IClientRepository clientRepository, IAccountRepository accountRepository, ITransactionRepository transactionRepository, HomeBankingContext homeBankingContext)
+        public TransactionsController(IAccountRepository accountRepository, HomeBankingContext homeBankingContext)
         {
-            _clientRepository = clientRepository;
             _accountRepository = accountRepository;
-            _transactionRepository = transactionRepository;
             _homeBankingContext = homeBankingContext;
         }
 
