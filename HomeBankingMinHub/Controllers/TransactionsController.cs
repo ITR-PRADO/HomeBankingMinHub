@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Transactions;
 
 namespace HomeBankingMinHub.Controllers
 {
@@ -26,7 +27,7 @@ namespace HomeBankingMinHub.Controllers
         [HttpPost]
         public IActionResult PostTransaction([FromBody] TransferDTO transferDTO)
         {
-            using (var transaction = _homeBankingContext.Database.BeginTransaction())
+            using (var scope = new TransactionScope())
             {
                 try
                 {
@@ -52,7 +53,7 @@ namespace HomeBankingMinHub.Controllers
                     accountFrom.Balance -= transferDTO.Amount;
                     accountTo.Balance += transferDTO.Amount;
 
-                    accountFrom.Transactions.Add(new Transaction
+                    accountFrom.Transactions.Add(new Models.Transaction
                     {
                         Type = TransactionType.DEBIT,
                         Amount = -transferDTO.Amount,
@@ -61,7 +62,7 @@ namespace HomeBankingMinHub.Controllers
                         AccountId = accountFrom.Id,
                     });
 
-                    accountTo.Transactions.Add(new Transaction
+                    accountTo.Transactions.Add(new Models.Transaction
                     {
                         Type = TransactionType.CREDIT,
                         Amount = transferDTO.Amount,
@@ -72,12 +73,11 @@ namespace HomeBankingMinHub.Controllers
                     _accountRepository.Save(accountTo);
                     _accountRepository.Save(accountFrom);
 
-                    transaction.Commit();
+                    scope.Complete();
                     return Created();
                 }
                 catch (Exception ex)
                 {
-                    transaction.Rollback();
                     return BadRequest(ex.Message);
                 }
             }
