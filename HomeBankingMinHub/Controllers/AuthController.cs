@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using HomeBankingMinHub.Services;
 
 namespace HomeBankingMinHub.Controllers
 {
@@ -12,10 +13,12 @@ namespace HomeBankingMinHub.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private IClientRepository _clientRepository;
-        public AuthController(IClientRepository clientRepository)
+        private IAuthService _authService;
+        private IClientService _clientService;
+        public AuthController(IAuthService authService, IClientService clientService)
         {
-            _clientRepository = clientRepository;
+            _authService = authService;
+            _clientService = clientService;
         }
 
         [HttpPost("login")]
@@ -23,21 +26,13 @@ namespace HomeBankingMinHub.Controllers
         {
             try
             {
-                Client user = _clientRepository.FindByEmail(client.Email);
+                var user = _clientService.GetClientByEmail(client.Email);
                 if (user == null || !String.Equals(user.Password, client.Password))
                 {
                     return Unauthorized();               
                 }
-                var claims = new List<Claim>
-                {
-                    new Claim(user.Rol.ToString(), user.Email),
-                    new Claim("IdClient",user.Id.ToString()),
-                    new Claim("NameClient",user.FirstName+" "+user.LastName),
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
+                    new ClaimsPrincipal(_authService.SetClaims(user)));
                 return Ok();
             }
             catch (Exception ex)

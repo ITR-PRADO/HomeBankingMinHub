@@ -1,4 +1,6 @@
-﻿namespace HomeBankingMinHub.Models
+﻿using HomeBankingMinHub.Dtos;
+
+namespace HomeBankingMinHub.Models
 {
     public class Account
     {
@@ -9,7 +11,13 @@
         public Client Client { get; set; }
         public long ClientId { get; set; }
         public ICollection<Transaction> Transactions { get; set; }
+        public Account()
+        {
+            CreationDate = DateTime.Now;
+            Balance = 0;
+            Transactions = new List<Transaction>();
 
+        }
 
     }
 }

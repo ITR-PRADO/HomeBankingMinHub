@@ -1,4 +1,5 @@
-﻿using HomeBankingMinHub.Models;
+﻿using HomeBankingMinHub.Dtos;
+using HomeBankingMinHub.Models;
 
 namespace HomeBankingMinHub.Repositories
 {

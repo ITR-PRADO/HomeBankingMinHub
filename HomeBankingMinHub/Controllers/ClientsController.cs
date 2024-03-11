@@ -1,6 +1,7 @@
 ﻿using HomeBankingMinHub.Dtos;
 using HomeBankingMinHub.Models;
 using HomeBankingMinHub.Repositories;
+using HomeBankingMinHub.Services;
 using HomeBankingMinHub.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,14 +13,14 @@ namespace HomeBankingMinHub.Controllers
     [ApiController]
     public class ClientsController : ControllerBase
     {
-        private IClientRepository _clientRepository;
-        private IAccountRepository _accountRepository;
-        private ICardRepository _cardRepository;
-        public ClientsController(IClientRepository clientRepository, IAccountRepository accountRepository, ICardRepository cardRepository)
+        private IClientService _clientService;
+        private IAccountService _accountServices;
+        private ICardService _cardService;
+        public ClientsController(ICardService cardService, IAccountService accountServices, IClientService clientService)
         {
-            _clientRepository = clientRepository;
-            _accountRepository = accountRepository;
-            _cardRepository = cardRepository;
+            _clientService = clientService;
+            _accountServices = accountServices;
+            _cardService = cardService;
         }
         
         [Authorize(policy: "AdminOnly")]
@@ -27,48 +28,8 @@ namespace HomeBankingMinHub.Controllers
         public IActionResult Get()
         {
             try
-            {
-                var clients = _clientRepository.GetAllClients();
-                var clientsDTO = new List<ClientDTO>();
-
-                foreach (Client client in clients)
-                {
-                    var newClientDTO = new ClientDTO
-                    {
-                        Id = client.Id,
-                        Email = client.Email,
-                        FirstName = client.FirstName,
-                        LastName = client.LastName,
-                        Accounts = client.Accounts.Select(ac => new AccountDTO
-                        {
-                            Id = ac.Id,
-                            Balance = ac.Balance,
-                            CreationDate = ac.CreationDate,
-                            Number = ac.Number
-                        }).ToList(),
-                        Credits = client.ClientLoans.Select(cl => new ClientLoanDTO
-                        {
-                            Id = cl.Id,
-                            LoanId = cl.LoanId,
-                            Name = cl.Loan.Name,
-                            Amount = cl.Amount,
-                            Payments = int.Parse(cl.Payments)
-                        }).ToList(),
-                        Cards = client.Cards.Select(c => new CardDTO
-                        {
-                            Id = c.Id,
-                            CardHolder = c.CardHolder,
-                            Color = c.Color.ToString(),
-                            Cvv = c.Cvv,
-                            FromDate = c.FromDate,
-                            Number = c.Number,
-                            ThruDate = c.ThruDate,
-                            Type = c.Type.ToString()
-                        }).ToList()
-                    };                    
-                    clientsDTO.Add(newClientDTO);
-                }
-                return Ok(clientsDTO);
+            {                
+                return Ok(_clientService.GetAllClients());
             }
             catch (Exception ex)
             {
@@ -76,53 +37,14 @@ namespace HomeBankingMinHub.Controllers
             }
         }
         
+
         [Authorize(policy: "AdminOnly")]
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
             try
-            {
-                var client = _clientRepository.FindById(id);
-                if (client == null)
-                {
-                    return Forbid();
-                }
-
-                var clientDTO = new ClientDTO
-                {
-                    Id = client.Id,
-                    Email = client.Email,
-                    FirstName = client.FirstName,
-                    LastName = client.LastName,
-                    Accounts = client.Accounts.Select(ac => new AccountDTO
-                    {
-                        Id = ac.Id,
-                        Balance = ac.Balance,
-                        CreationDate = ac.CreationDate,
-                        Number = ac.Number
-                    }).ToList(),
-                    Credits = client.ClientLoans.Select(cl => new ClientLoanDTO
-                    {
-                        Id = cl.Id,
-                        LoanId = cl.LoanId,
-                        Name = cl.Loan.Name,
-                        Amount = cl.Amount,
-                        Payments = int.Parse(cl.Payments)
-                    }).ToList(),
-                    Cards = client.Cards.Select(c => new CardDTO
-                    {
-                        Id = c.Id,
-                        CardHolder = c.CardHolder,
-                        Color = c.Color.ToString(),
-                        Cvv = c.Cvv,
-                        FromDate = c.FromDate,
-                        Number = c.Number,
-                        ThruDate = c.ThruDate,
-                        Type = c.Type.ToString()
-                    }).ToList()
-                };
-
-                return Ok(clientDTO);
+            {              
+                return Ok(_clientService.GetClientById(id));
             }
             catch (Exception ex)
             {
@@ -131,6 +53,7 @@ namespace HomeBankingMinHub.Controllers
 
         }
         
+
         [Authorize(policy: "ClientOnly")]
         [HttpGet("current")]
         public IActionResult GetCurrent()
@@ -143,45 +66,7 @@ namespace HomeBankingMinHub.Controllers
                 {
                     return Forbid();
                 }
-                Client client = _clientRepository.FindByEmail(email);
-                if (client == null)
-                {
-                    return Forbid();
-                }
-                var ClientDTO = new ClientDTO
-                {
-                    Id = client.Id,
-                    Email = client.Email,
-                    FirstName = client.FirstName,
-                    LastName = client.LastName,
-                    Accounts = client.Accounts.Select(ac => new AccountDTO
-                    {
-                        Id = ac.Id,
-                        Balance = ac.Balance,
-                        CreationDate = ac.CreationDate,
-                        Number = ac.Number
-                    }).ToList(),
-                    Credits = client.ClientLoans.Select(cl => new ClientLoanDTO
-                    {
-                        Id = cl.Id,
-                        LoanId = cl.LoanId,
-                        Name = cl.Loan.Name,
-                        Amount = cl.Amount,
-                        Payments = int.Parse(cl.Payments)
-                    }).ToList(),
-                    Cards = client.Cards.Select(c => new CardDTO
-                    {
-                        Id = c.Id,
-                        CardHolder = c.CardHolder,
-                        Color = c.Color.ToString(),
-                        Cvv = c.Cvv,
-                        FromDate = c.FromDate,
-                        Number = c.Number,
-                        ThruDate = c.ThruDate,
-                        Type = c.Type.ToString()
-                    }).ToList()
-                };
-                return Ok(ClientDTO);
+                return Ok(_clientService.GetClientByEmail(email));
             }
             catch (Exception ex)
             {
@@ -189,44 +74,19 @@ namespace HomeBankingMinHub.Controllers
             }
         }
 
+
         [HttpPost]
-        public IActionResult Post([FromBody] ClientDTO client)
+        public IActionResult Post([FromBody] ClientSingUpDTO client)
         {
             try
             {
-                if(String.IsNullOrEmpty(client.Email)) return StatusCode(403, "Email vacío");
-                if(String.IsNullOrEmpty(client.Password)) return StatusCode(403, "Password vacía");
-                if(String.IsNullOrEmpty(client.FirstName)) return StatusCode(403, "FirstName vacío");
-                if(String.IsNullOrEmpty(client.LastName)) return StatusCode(403, "LastName vacío");
+                if(String.IsNullOrEmpty(client.Email)) return StatusCode(400, "Email vacío");
+                if(String.IsNullOrEmpty(client.Password)) return StatusCode(400, "Password vacía");
+                if(String.IsNullOrEmpty(client.FirstName)) return StatusCode(400, "FirstName vacío");
+                if(String.IsNullOrEmpty(client.LastName)) return StatusCode(400, "LastName vacío");
                 
-                Client user = _clientRepository.FindByEmail(client.Email);
-                if(user != null)
-                {
-                    return StatusCode(403, "El Email esta en uso");
-                }                
-                string numberAccount;
-                do
-                {
-                    numberAccount = Number.GenerateAccountNumber();
-                } while (_accountRepository.Exist(numberAccount));
-                List<Account> accounts = new List<Account>();
-                accounts.Add(new Account
-                {
-                    Number = numberAccount,
-                    CreationDate = DateTime.Now,
-                    Balance = 0
-                });
-                Client newClient = new Client
-                {
-                    Email = client.Email,
-                    Password = client.Password,
-                    FirstName = client.FirstName,
-                    LastName = client.LastName,
-                    Rol = client.Rol,
-                    Accounts= accounts
-                };              
-                _clientRepository.Save(newClient);
-                return Created("", newClient);
+                
+                return Created("Usuario Creado Exitosamente", _clientService.PostClient(new ClientDTO(client)));
             }
             catch(Exception ex)
             {
@@ -234,61 +94,51 @@ namespace HomeBankingMinHub.Controllers
             }
         }
         
+
         [Authorize(policy:"ClientOnly")]
         [HttpGet("current/accounts")]
         public IActionResult GetCurrentAccounts()
         {
-            var idUser = long.Parse(User.FindFirst("IdClient") != null ?
-                User.FindFirst("IdClient").Value : string.Empty);
-            var accounts = _accountRepository.GetAccountsByClient(idUser);
-            List<AccountDTO> accountDTOs = new List<AccountDTO>();
-            foreach(Account account in accounts)
+            try
             {
-                AccountDTO accountDTO = new AccountDTO
+                var idUser = User.FindFirst("IdClient") != null ?
+                    User.FindFirst("IdClient").Value : string.Empty;
+                if (idUser == String.Empty || !long.TryParse(idUser, out long idUserValue))
                 {
-                    Id = account.Id,
-                    Number = account.Number,
-                    CreationDate = account.CreationDate,
-                    Balance = account.Balance,
-                    Transactions = account.Transactions.Select(trans => new TransactionDTO
-                    {
-                        Id=trans.Id,
-                        Type = trans.Type,
-                        Amount = trans.Amount,
-                        Description = trans.Description,
-                        Date = trans.Date,
-                    }).ToList(),
-
-                };
-                accountDTOs.Add(accountDTO);
-            }               
-                return Ok(accountDTOs);           
+                    return Forbid();
+                }
+                else
+                {
+                    return Ok(_accountServices.GetCurrentAccounts(idUserValue));
+                }
+            }catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
+        
         
         [Authorize(policy:"ClientOnly")]
         [HttpGet("current/cards")]
-        public IActionResult GetCurrentCards() { 
-            var idUser = long.Parse(User.FindFirst("IdClient") != null ?
-                User.FindFirst("IdClient").Value : string.Empty);
-            var Cards = _cardRepository.GetCardsByClient(idUser);
-            List<CardDTO> cardDTOs = new List<CardDTO>();
-            foreach(Card card in Cards)
+        public IActionResult GetCurrentCards() {
+            try
             {
-                var cardDto = new CardDTO
+                var idUser = User.FindFirst("IdClient") != null ?
+                    User.FindFirst("IdClient").Value : string.Empty;
+                if (idUser == String.Empty || !long.TryParse(idUser, out long idUserValue))
                 {
-                    Id = card.Id,
-                    Number = card.Number,
-                    Type = card.Type.ToString(),
-                    Color = card.Color.ToString(),
-                    FromDate = card.FromDate,
-                    ThruDate = card.ThruDate,
-                    CardHolder = card.CardHolder,
-                    Cvv = card.Cvv,
-                };
-                cardDTOs.Add(cardDto);
+                    return Forbid();
+                }
+                else
+                {
+                    return Ok(_cardService.GetCardsByClient(idUserValue));
+                }
+            }catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
-            return Ok(cardDTOs);
         }             
+
 
         [Authorize(policy:"ClientOnly")]
         [HttpPost("current/accounts")]
@@ -296,74 +146,42 @@ namespace HomeBankingMinHub.Controllers
         {
             try
             {
-                var idUser = long.Parse(User.FindFirst("IdClient") != null ?
-                    User.FindFirst("IdClient").Value : string.Empty);
-                if (_accountRepository.GetAccountsByClient(idUser).Count() >= 3)
+                var idUser = User.FindFirst("IdClient") != null ?
+                    User.FindFirst("IdClient").Value : string.Empty;
+                if (idUser == String.Empty || !long.TryParse(idUser, out long idUserValue))
                 {
-                    return StatusCode(403, "El Cliente ya posee su maximo de 3 cuentas");
+                    return Forbid();
                 }
                 else
                 {
-                    string numberAccount;
-                    do
-                    {
-                        numberAccount = Number.GenerateAccountNumber();
-                    } while (_accountRepository.Exist(numberAccount));
-                    var newAccount = new Account
-                    {
-                        Number = numberAccount,
-                        CreationDate = DateTime.Now,
-                        Balance = 0,
-                        ClientId = idUser
-                    };
-                    _accountRepository.Save(newAccount);
-                    return Created("", newAccount);
+                    return Ok(_accountServices.PostAccount(idUserValue));
                 }
+                
             }catch (Exception ex)
             {
                 return StatusCode(500,ex.Message);
             }
         }
         
+
         [Authorize(policy:"ClientOnly")]
         [HttpPost("current/cards")]
         public IActionResult PostCurrentCard(CardDTORquest cardParam)
         {
             try { 
-            CardType cardType = (CardType)Enum.Parse(typeof(CardType), cardParam.Type);
-            CardColor cardColor = (CardColor)Enum.Parse(typeof(CardColor), cardParam.Color);
-            var idUser = long.Parse(User.FindFirst("IdClient") != null ?
-                User.FindFirst("IdClient").Value : string.Empty);
-            List<Card> cards = _cardRepository.GetCardsByClient(idUser).ToList();
-            if(cards.Count() >= 6) return StatusCode(403, "El Cliente ya posee su maximo de 6 tarjetas");
-            foreach(Card card in cards)
-            {
-                if (card.Type.Equals(cardType) && card.Color.Equals(cardColor))
+            
+                var idUser = User.FindFirst("IdClient") != null ?
+                    User.FindFirst("IdClient").Value : string.Empty;
+                if (idUser == String.Empty || !long.TryParse(idUser, out long idUserValue))
                 {
-                    return StatusCode(403, "El Cliente ya posee una tarjeta de "+cardParam.Type+" de color "+cardParam.Color);
+                    return Forbid();
                 }
-            }
-            string numberCard="";
-            do
-            {
-                numberCard = Number.GenerateCreditNumber();
-            }while(_cardRepository.Exist(numberCard));
+                else
+                {
+                    var client = _clientService.GetClientById(idUserValue);
+                    return Ok(_cardService.PostCard(client, cardParam));
+                }
 
-            Client client = _clientRepository.FindById(idUser);
-            var newCard = new Card
-            {
-               CardHolder= client.FirstName+" "+client.LastName,
-               Type=cardType,
-               Color=cardColor,
-               ClientId=client.Id,
-               Number=numberCard,
-               Cvv=Number.GenerateCvv(),
-               FromDate=DateTime.Now,
-               ThruDate=DateTime.Now.AddYears(5),
-
-            };
-            _cardRepository.Save(newCard);
-            return Created("", newCard);
             }
             catch (Exception ex)
             {

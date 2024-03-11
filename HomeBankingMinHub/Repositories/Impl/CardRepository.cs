@@ -1,8 +1,8 @@
 ﻿using HomeBankingMinHub.Models;
 
-namespace HomeBankingMinHub.Repositories
+namespace HomeBankingMinHub.Repositories.Impl
 {
-    public class CardRepository:RepositoryBase<Card>,ICardRepository
+    public class CardRepository : RepositoryBase<Card>, ICardRepository
     {
         public CardRepository(HomeBankingContext repositoryContext) : base(repositoryContext)
         {
@@ -10,7 +10,7 @@ namespace HomeBankingMinHub.Repositories
 
         public bool Exist(string numberCard)
         {
-           return FindByCondition(card=>card.Number == numberCard).Any();
+            return FindByCondition(card => card.Number == numberCard).Any();
         }
 
         public Card FindById(long id)
@@ -28,7 +28,7 @@ namespace HomeBankingMinHub.Repositories
         public IEnumerable<Card> GetAllCard()
         {
             return FindAll()
-                .ToList();                
+                .ToList();
         }
 
         public void Save(Card card)

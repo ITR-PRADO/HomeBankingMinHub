@@ -1,8 +1,8 @@
 ﻿using HomeBankingMinHub.Dtos;
 using HomeBankingMinHub.Models;
 using HomeBankingMinHub.Repositories;
+using HomeBankingMinHub.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Transactions;
@@ -13,17 +13,17 @@ namespace HomeBankingMinHub.Controllers
     [ApiController]
     public class LoansController : ControllerBase
     {
-        private IClientRepository _clientRepository;
-        private IAccountRepository _accountRepository;
-        private ILoanRepository _loanRepository;
-        private IClientLoanRepository _clientLoanRepository;
+        private IClientService _clientService;
+        private IAccountService _accountService;
+        private ILoanService _loanService;
+        private IClientLoanService _clientLoanService;
 
-        public LoansController(IClientRepository clientRepository, IAccountRepository accountRepository, ILoanRepository loanRepository, IClientLoanRepository clientLoanRepository, ITransactionRepository transactionRepository)
+        public LoansController(IClientService clientService, IAccountService accountService, ILoanService loanService, IClientLoanService clientLoanService)
         {
-            _clientRepository = clientRepository;
-            _accountRepository = accountRepository;
-            _loanRepository = loanRepository;
-            _clientLoanRepository = clientLoanRepository;
+            _clientService = clientService;
+            _accountService = accountService;
+            _loanService = loanService;
+            _clientLoanService = clientLoanService;
         }
 
         [Authorize("ClientOnly")]
@@ -34,48 +34,30 @@ namespace HomeBankingMinHub.Controllers
             {
                 try
                 {
-                    //validar campos vacios, nulos o con valor 0
-                    if (loanApplicationDTO.LoanId <= 0) return StatusCode(403, "Datos incompletos...(Credito)");
-                    if (loanApplicationDTO.Payments.IsNullOrEmpty() || loanApplicationDTO.Payments == "0") return StatusCode(403, "Datos incompletos...(Pagos)");
-                    if (loanApplicationDTO.ToAccountNumber.IsNullOrEmpty()) return StatusCode(403, "Datos incompletos...(Cuenta)");
-                    //por medio de los claims busco el id del usuario loggeado y consultao su información
+                    if (loanApplicationDTO.LoanId <= 0) return StatusCode(400, "Datos incompletos...(Credito)");
+                    if (loanApplicationDTO.Payments.IsNullOrEmpty() || loanApplicationDTO.Payments == "0") return StatusCode(400, "Datos incompletos...(Pagos)");
+                    if (loanApplicationDTO.ToAccountNumber.IsNullOrEmpty()) return StatusCode(400, "Datos incompletos...(Cuenta)");
                     var userId = User.FindFirst("IdClient") != null ?
                                  User.FindFirst("IdClient").Value : String.Empty;
-                    var client = _clientRepository.FindById(long.Parse(userId));
-                    //Verifico que exista el prestamo
-                    var loan = _loanRepository.FindById(loanApplicationDTO.LoanId);
-                    if (loan == null) return StatusCode(403, "El prestamo no existe");
-                    // valido que el monto no sea negativo o igual a 0, ni supere el monto maximo
+                    if (userId == String.Empty || !long.TryParse(userId, out long userIdValue)) return StatusCode(403, "Error en autenticacion");
+                    var client = _clientService.GetClientById(userIdValue);                    
+                    var loan = _loanService.GetLoanById(loanApplicationDTO.LoanId);
+
+                    if (loan == null) return StatusCode(404, "El prestamo no existe");
                     if (loanApplicationDTO.Amount <= 0 || loanApplicationDTO.Amount>loan.MaxAmount) return StatusCode(400, "Monto Incorrecto");
-                    // creo un array de payments para poder recorrerlo con split() y valido si el valor ingresados e encuentra en el mismo
                     string[] payments = loan.Payments.Split(",");
                     if(payments.FirstOrDefault(a => a.Equals(loanApplicationDTO.Payments)) == null) return StatusCode(400, "Pagos Incorrectos");
-                    //Verifico si la cuenta existe y luego si pertenece al cliente loggeado
-                    var account = _accountRepository.FindByNumber(loanApplicationDTO.ToAccountNumber);
+                    
+                    var account = _accountService.GetAccountByNumber(loanApplicationDTO.ToAccountNumber);
                     if (account == null) return StatusCode(404, "Cuenta Inexistente");
-                    if (client.Accounts.FirstOrDefault(account=>account.Number.Equals(loanApplicationDTO.ToAccountNumber))==null) return StatusCode(404, "La cuenta no pertenece al cliente");
-                    //Se crea una solicitud de prestamo
-                    var newClientLoan = new ClientLoan
-                    {
-                        Amount = loanApplicationDTO.Amount * 1.2,
-                        Payments = loanApplicationDTO.Payments,
-                        ClientId = long.Parse(userId),
-                        LoanId = loanApplicationDTO.LoanId,
-                    };
-                    _clientLoanRepository.Save(newClientLoan);
-                    var newTransaction = new Models.Transaction
-                    {
-                        Type = TransactionType.DEBIT,
-                        Amount = loanApplicationDTO.Amount,
-                        Description = "Loan approved",
-                        Date = DateTime.Now,
-                        AccountId = account.Id,
-                    };
-                    account.Transactions.Add(newTransaction);
-                    account.Balance += loanApplicationDTO.Amount;
-                    _accountRepository.Save(account);
+                    if (client.Accounts.FirstOrDefault(account=>account.Number.Equals(loanApplicationDTO.ToAccountNumber))==null) return StatusCode(403, "La cuenta no pertenece al cliente");
+                    
+                    
+                    var clientLoanDTO = _clientLoanService.PostClientLoan(loanApplicationDTO, loan, userIdValue);
+                    _accountService.PutAccountTransaction(loanApplicationDTO,account.Id);                    
                     scope.Complete();
-                    return Created("", newClientLoan);
+
+                    return Created("",clientLoanDTO);
                 }
                 catch (Exception ex)
                 {
@@ -86,11 +68,13 @@ namespace HomeBankingMinHub.Controllers
 
         }
 
-        
+
+
+        [Authorize]
         [HttpGet]
         public IActionResult GetLoans()
         {
-            return Ok(_loanRepository.GetAllLoan());
+            return Ok(_loanService.GetAllLoans());
         }
     }
 }

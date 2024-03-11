@@ -12,5 +12,10 @@
         public DateTime ThruDate { get; set; }
         public long ClientId { get; set; }
         public Client Client { get; set; }
+        public Card()
+        {
+            FromDate = DateTime.Now;
+            ThruDate = DateTime.Now.AddYears(5);
+        }
     }
 }

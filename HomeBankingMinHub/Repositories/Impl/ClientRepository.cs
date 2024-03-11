@@ -1,9 +1,9 @@
 ﻿using HomeBankingMinHub.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HomeBankingMinHub.Repositories
+namespace HomeBankingMinHub.Repositories.Impl
 {
-    public class ClientRepository:RepositoryBase<Client>,IClientRepository
+    public class ClientRepository : RepositoryBase<Client>, IClientRepository
     {
         public ClientRepository(HomeBankingContext repositoryContext) : base(repositoryContext)
         {
@@ -13,9 +13,10 @@ namespace HomeBankingMinHub.Repositories
         {
             return FindByCondition(client => client.Id == id)
                 .Include(client => client.Accounts)
+                .ThenInclude(account => account.Transactions)
                 .Include(client => client.Cards)
-                .Include(client=>client.ClientLoans)
-                .ThenInclude(cl=>cl.Loan)
+                .Include(client => client.ClientLoans)
+                .ThenInclude(cl => cl.Loan)
                 .FirstOrDefault();
         }
 
@@ -23,6 +24,7 @@ namespace HomeBankingMinHub.Repositories
         {
             return FindAll()
                 .Include(client => client.Accounts)
+                .ThenInclude(account => account.Transactions)
                 .Include(client => client.Cards)
                 .Include(client => client.ClientLoans)
                 .ThenInclude(cl => cl.Loan)
@@ -36,8 +38,9 @@ namespace HomeBankingMinHub.Repositories
         }
         public Client FindByEmail(string email)
         {
-            return FindByCondition(client=>client.Email.ToUpper() == email.ToUpper())
+            return FindByCondition(client => client.Email.ToUpper() == email.ToUpper())
                 .Include(client => client.Accounts)
+                .ThenInclude(account=>account.Transactions)
                 .Include(client => client.Cards)
                 .Include(client => client.ClientLoans)
                 .ThenInclude(cl => cl.Loan)

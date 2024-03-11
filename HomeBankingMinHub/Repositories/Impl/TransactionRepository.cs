@@ -1,6 +1,6 @@
 ﻿using HomeBankingMinHub.Models;
 
-namespace HomeBankingMinHub.Repositories
+namespace HomeBankingMinHub.Repositories.Impl
 {
     public class TransactionRepository : RepositoryBase<Transaction>, ITransactionRepository
     {
@@ -23,7 +23,7 @@ namespace HomeBankingMinHub.Repositories
         public IEnumerable<Transaction> GetAllTransactions()
         {
             return FindAll()
-                .ToList();                
+                .ToList();
         }
 
         public void Save(Transaction transaction)

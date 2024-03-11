@@ -1,8 +1,8 @@
 ﻿using HomeBankingMinHub.Models;
 
-namespace HomeBankingMinHub.Repositories
+namespace HomeBankingMinHub.Repositories.Impl
 {
-    public class ClientLoanRepository:RepositoryBase<ClientLoan>,IClientLoanRepository
+    public class ClientLoanRepository : RepositoryBase<ClientLoan>, IClientLoanRepository
     {
         public ClientLoanRepository(HomeBankingContext repositoryContext) : base(repositoryContext)
         {

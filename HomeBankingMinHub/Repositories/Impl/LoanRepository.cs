@@ -1,8 +1,8 @@
 ﻿using HomeBankingMinHub.Models;
 
-namespace HomeBankingMinHub.Repositories
+namespace HomeBankingMinHub.Repositories.Impl
 {
-    public class LoanRepository:RepositoryBase<Loan>,ILoanRepository
+    public class LoanRepository : RepositoryBase<Loan>, ILoanRepository
     {
         public LoanRepository(HomeBankingContext repositoryContext) : base(repositoryContext)
         {
@@ -13,12 +13,12 @@ namespace HomeBankingMinHub.Repositories
             return FindByCondition(loan => loan.Id == id)
                 .FirstOrDefault();
         }
-        
 
-        public IEnumerable<Loan> GetAllLoan()
+
+        public IEnumerable<Loan> GetAllLoans()
         {
             return FindAll()
-                .ToList();                
+                .ToList();
         }
 
         public void Save(Loan loan)
