@@ -1,10 +1,6 @@
 ﻿using HomeBankingMinHub.Dtos;
-using HomeBankingMinHub.Models;
-using HomeBankingMinHub.Repositories;
 using HomeBankingMinHub.Services;
-using HomeBankingMinHub.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeBankingMinHub.Controllers
@@ -54,17 +50,24 @@ namespace HomeBankingMinHub.Controllers
         }
         
 
-        [Authorize(policy: "ClientOnly")]
+        //[Authorize(policy: "ClientOnly")]
+        [Authorize]
         [HttpGet("current")]
         public IActionResult GetCurrent()
         {
             try
             {
-                string email = User.FindFirst("Client") != null ? 
-                    User.FindFirst("Client").Value : string.Empty;
-                if(email == string.Empty)
+                string email = User.FindFirst("ADMIN") != null ?
+                User.FindFirst("ADMIN").Value : string.Empty;
+
+                if (email == string.Empty)
                 {
-                    return Forbid();
+                    email = User.FindFirst("Client") != null ?
+                                    User.FindFirst("Client").Value : string.Empty;
+                    if (email == string.Empty)
+                    {
+                        return Forbid();
+                    }                   
                 }
                 return Ok(_clientService.GetClientByEmail(email));
             }
@@ -80,22 +83,23 @@ namespace HomeBankingMinHub.Controllers
         {
             try
             {
-                if(String.IsNullOrEmpty(client.Email)) return StatusCode(400, "Email vacío");
-                if(String.IsNullOrEmpty(client.Password)) return StatusCode(400, "Password vacía");
-                if(String.IsNullOrEmpty(client.FirstName)) return StatusCode(400, "FirstName vacío");
-                if(String.IsNullOrEmpty(client.LastName)) return StatusCode(400, "LastName vacío");
+                if(String.IsNullOrEmpty(client.Email)) return StatusCode(400, "Email field empty, verify the information");
+                if(String.IsNullOrEmpty(client.Password)) return StatusCode(400, "Password field empty, verify the information");
+                if(String.IsNullOrEmpty(client.FirstName)) return StatusCode(400, "FirstName field empty, verify the information");
+                if(String.IsNullOrEmpty(client.LastName)) return StatusCode(400, "LastName field empty, verify the information");
                 
                 
-                return Created("Usuario Creado Exitosamente", _clientService.PostClient(new ClientDTO(client)));
+                return Created("User Successfully Created", _clientService.PostClient(new ClientDTO(client)));
             }
             catch(Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
-        
 
-        [Authorize(policy:"ClientOnly")]
+
+        //[Authorize(policy: "ClientOnly")]
+        [Authorize]
         [HttpGet("current/accounts")]
         public IActionResult GetCurrentAccounts()
         {
@@ -116,9 +120,10 @@ namespace HomeBankingMinHub.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        
-        
-        [Authorize(policy:"ClientOnly")]
+
+
+        //[Authorize(policy: "ClientOnly")]
+        [Authorize]
         [HttpGet("current/cards")]
         public IActionResult GetCurrentCards() {
             try
@@ -137,10 +142,11 @@ namespace HomeBankingMinHub.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-        }             
+        }
 
 
-        [Authorize(policy:"ClientOnly")]
+        //[Authorize(policy: "ClientOnly")]
+        [Authorize]
         [HttpPost("current/accounts")]
         public IActionResult PostCurrentAccount()
         {
@@ -162,9 +168,10 @@ namespace HomeBankingMinHub.Controllers
                 return StatusCode(500,ex.Message);
             }
         }
-        
 
-        [Authorize(policy:"ClientOnly")]
+
+        //[Authorize(policy: "ClientOnly")]
+        [Authorize]
         [HttpPost("current/cards")]
         public IActionResult PostCurrentCard(CardDTORquest cardParam)
         {

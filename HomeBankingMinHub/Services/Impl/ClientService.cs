@@ -31,7 +31,7 @@ namespace HomeBankingMinHub.Services.Impl
             var client = _clientRepository.FindByEmail(email);
             if (client == null)
             {
-                throw new Exception("Cliente no encontrado...");
+                throw new Exception("Client not found");
             }
             return new ClientDTO(client);
         }
@@ -41,7 +41,7 @@ namespace HomeBankingMinHub.Services.Impl
             var client = _clientRepository.FindById(id);
             if (client == null)
             {
-                throw new Exception("No se encontro al cliente...");
+                throw new Exception("Client not found");
             }
             return new ClientDTO(client);
         }
@@ -51,7 +51,7 @@ namespace HomeBankingMinHub.Services.Impl
             var user = _clientRepository.FindByEmail(client.Email);
             if (user != null)
             {
-                throw new Exception("El email ya esta en uso");
+                throw new Exception("The email is already in use");
             }
             string numberAccount;
             do

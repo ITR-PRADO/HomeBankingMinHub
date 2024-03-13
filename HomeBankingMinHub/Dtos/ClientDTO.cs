@@ -1,4 +1,5 @@
 ﻿using HomeBankingMinHub.Models;
+using Microsoft.IdentityModel.Tokens;
 using System.Text.Json.Serialization;
 
 namespace HomeBankingMinHub.Dtos
@@ -27,9 +28,9 @@ namespace HomeBankingMinHub.Dtos
             Email = client.Email;
             Password = client.Password;
             Rol = client.Rol;
-            Accounts = client.Accounts.Any() ? client.Accounts.Select(account => new AccountDTO(account)).ToList() : new List<AccountDTO>();
-            Cards = client.Cards.Any() ? client.Cards.Select(card => new CardDTO(card)).ToList(): new List<CardDTO>();
-            Credits =client.ClientLoans.Any() ? client.ClientLoans.Select(clientLoan => new ClientLoanDTO(clientLoan)).ToList() : new List<ClientLoanDTO>();
+            Accounts = client.Accounts.IsNullOrEmpty() ? null : client.Accounts.Select(account => new AccountDTO(account)).ToList();
+            Cards = client.Cards.IsNullOrEmpty() ? new List<CardDTO>() : client.Cards.Select(card => new CardDTO(card)).ToList();
+            Credits =client.ClientLoans.IsNullOrEmpty() ? null : client.ClientLoans.Select(clientLoan => new ClientLoanDTO(clientLoan)).ToList();
         }
         public ClientDTO(ClientSingUpDTO client)
         {

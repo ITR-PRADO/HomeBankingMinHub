@@ -1,4 +1,5 @@
 ﻿using HomeBankingMinHub.Models;
+using Microsoft.IdentityModel.Tokens;
 using System.Text.Json.Serialization;
 
 namespace HomeBankingMinHub.Dtos
@@ -21,7 +22,7 @@ namespace HomeBankingMinHub.Dtos
             CreationDate = account.CreationDate;
             Balance = account.Balance;
             ClientId = account.ClientId;
-            Transactions = account.Transactions.Any() ? account.Transactions.Select(transaction => new TransactionDTO(transaction)).ToList() : new List<TransactionDTO>(); ;
+            Transactions = account.Transactions.IsNullOrEmpty() ? null : account.Transactions.Select(transaction => new TransactionDTO(transaction)).ToList();
         }
 
     }

@@ -24,7 +24,7 @@ namespace HomeBankingMinHub.Repositories.Impl
         {
             return FindAll()
                 .Include(client => client.Accounts)
-                .ThenInclude(account => account.Transactions)
+                //.ThenInclude(account => account.Transactions)
                 .Include(client => client.Cards)
                 .Include(client => client.ClientLoans)
                 .ThenInclude(cl => cl.Loan)

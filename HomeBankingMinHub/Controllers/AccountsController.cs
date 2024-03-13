@@ -1,9 +1,5 @@
-﻿using HomeBankingMinHub.Dtos;
-using HomeBankingMinHub.Models;
-using HomeBankingMinHub.Repositories;
-using HomeBankingMinHub.Services;
+﻿using HomeBankingMinHub.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HomeBankingMinHub.Controllers
@@ -32,7 +28,8 @@ namespace HomeBankingMinHub.Controllers
             }
         }
 
-        [Authorize(policy: "ClientOnly")]
+        //[Authorize(policy: "ClientOnly")]
+        [Authorize]
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
@@ -41,7 +38,7 @@ namespace HomeBankingMinHub.Controllers
                 var accountDTO = _accountService.GetAccountById(id);
                 if (accountDTO == null)
                 {
-                    return NotFound("La cuenta no existe");
+                    return NotFound("Non-Existent Account");
                 }
 
                 var idUser = User.FindFirst("IdClient") != null ?

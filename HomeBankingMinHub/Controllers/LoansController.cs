@@ -1,6 +1,4 @@
 ﻿using HomeBankingMinHub.Dtos;
-using HomeBankingMinHub.Models;
-using HomeBankingMinHub.Repositories;
 using HomeBankingMinHub.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +24,8 @@ namespace HomeBankingMinHub.Controllers
             _clientLoanService = clientLoanService;
         }
 
-        [Authorize("ClientOnly")]
+        //[Authorize(policy: "ClientOnly")]
+        [Authorize]
         [HttpPost]
         public IActionResult PostLoan([FromBody] LoanApplicationDTO loanApplicationDTO)
         {
@@ -34,27 +33,27 @@ namespace HomeBankingMinHub.Controllers
             {
                 try
                 {
-                    if (loanApplicationDTO.LoanId <= 0) return StatusCode(400, "Datos incompletos...(Credito)");
-                    if (loanApplicationDTO.Payments.IsNullOrEmpty() || loanApplicationDTO.Payments == "0") return StatusCode(400, "Datos incompletos...(Pagos)");
-                    if (loanApplicationDTO.ToAccountNumber.IsNullOrEmpty()) return StatusCode(400, "Datos incompletos...(Cuenta)");
+                    if (loanApplicationDTO.LoanId <= 0) return StatusCode(400, "Credit field empty, verify the information");
+                    if (loanApplicationDTO.Payments.IsNullOrEmpty() || loanApplicationDTO.Payments == "0") return StatusCode(400, "Payments field empty, verify the information");
+                    if (loanApplicationDTO.ToAccountNumber.IsNullOrEmpty()) return StatusCode(400, "Accounts field empty, verify the information");
                     var userId = User.FindFirst("IdClient") != null ?
                                  User.FindFirst("IdClient").Value : String.Empty;
-                    if (userId == String.Empty || !long.TryParse(userId, out long userIdValue)) return StatusCode(403, "Error en autenticacion");
+                    if (userId == String.Empty || !long.TryParse(userId, out long userIdValue)) return StatusCode(403, "Authentication Error");
                     var client = _clientService.GetClientById(userIdValue);                    
                     var loan = _loanService.GetLoanById(loanApplicationDTO.LoanId);
 
-                    if (loan == null) return StatusCode(404, "El prestamo no existe");
-                    if (loanApplicationDTO.Amount <= 0 || loanApplicationDTO.Amount>loan.MaxAmount) return StatusCode(400, "Monto Incorrecto");
+                    if (loan == null) return StatusCode(404, "Non-Existed Loan");
+                    if (loanApplicationDTO.Amount <= 0 || loanApplicationDTO.Amount>loan.MaxAmount) return StatusCode(400, "Incorrect Amount");
                     string[] payments = loan.Payments.Split(",");
-                    if(payments.FirstOrDefault(a => a.Equals(loanApplicationDTO.Payments)) == null) return StatusCode(400, "Pagos Incorrectos");
+                    if(payments.FirstOrDefault(a => a.Equals(loanApplicationDTO.Payments)) == null) return StatusCode(400, "Incorrect Payment");
                     
                     var account = _accountService.GetAccountByNumber(loanApplicationDTO.ToAccountNumber);
-                    if (account == null) return StatusCode(404, "Cuenta Inexistente");
-                    if (client.Accounts.FirstOrDefault(account=>account.Number.Equals(loanApplicationDTO.ToAccountNumber))==null) return StatusCode(403, "La cuenta no pertenece al cliente");
+                    if (account == null) return StatusCode(404, "Non-Existed Account");
+                    if (client.Accounts.FirstOrDefault(account=>account.Number.Equals(loanApplicationDTO.ToAccountNumber))==null) return StatusCode(403, "The account does not belong to the client");
                     
                     
                     var clientLoanDTO = _clientLoanService.PostClientLoan(loanApplicationDTO, loan, userIdValue);
-                    _accountService.PutAccountTransaction(loanApplicationDTO,account.Id);                    
+                    _accountService.PutAccountTransaction(loanApplicationDTO,account.Id, loan);                    
                     scope.Complete();
 
                     return Created("",clientLoanDTO);
@@ -70,6 +69,7 @@ namespace HomeBankingMinHub.Controllers
 
 
 
+        //[Authorize(policy: "ClientOnly")]
         [Authorize]
         [HttpGet]
         public IActionResult GetLoans()

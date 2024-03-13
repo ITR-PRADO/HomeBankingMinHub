@@ -9,7 +9,7 @@ namespace HomeBankingMinHub.Services
         AccountDTO PostAccount(long id);
         AccountDTO GetAccountById(long id);
         AccountDTO GetAccountByNumber(string toAccountNumber);
-        AccountDTO PutAccountTransaction(LoanApplicationDTO loanApplicationDTO,long id);
+        AccountDTO PutAccountTransaction(LoanApplicationDTO loanApplicationDTO,long id, LoanDTO loan);
         void SetTransaction(AccountDTO accountFrom, AccountDTO accountTo, TransferDTO transferDTO);
     }
 }

@@ -33,13 +33,13 @@ namespace HomeBankingMinHub.Services.Impl
 
             if (cards.Count() >= 6)
             {
-                throw new Exception("El Cliente ya posee su maximo de 6 tarjetas");
+                throw new Exception("The Client already has a maximum of 6 cards");
             }
             foreach (Card card in cards)
             {
                 if (card.Type.Equals(cardType) && card.Color.Equals(cardColor))
                 {
-                    throw new Exception("El Cliente ya posee una tarjeta de " + cardParam.Type + " de color " + cardParam.Color);
+                    throw new Exception("The Client already has a "+cardParam.Color+" "+cardParam.Type+" card");
                 }
             }
             string numberCard = "";

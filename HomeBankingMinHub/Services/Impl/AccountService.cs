@@ -2,8 +2,6 @@
 using HomeBankingMinHub.Models;
 using HomeBankingMinHub.Repositories;
 using HomeBankingMinHub.Utilities;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.Identity.Client;
 using System.Transactions;
 
 namespace HomeBankingMinHub.Services.Impl
@@ -25,7 +23,7 @@ namespace HomeBankingMinHub.Services.Impl
             Account account = _accountRepository.FindByNumber(toAccountNumber);
             if(account == null)
             {
-                throw new Exception("Cuenta inexistente");
+                throw new Exception("Non-existent account");
             }
             return new AccountDTO(account);
         }
@@ -62,7 +60,7 @@ namespace HomeBankingMinHub.Services.Impl
         {
             if (_accountRepository.GetAccountsByClient(id).Count() >= 3)
             {
-                throw new Exception("El Cliente ya posee su maximo de 3 cuentas");
+                throw new Exception("The Client already has a maximum of 3 accounts");
             }
             else
             {
@@ -79,14 +77,14 @@ namespace HomeBankingMinHub.Services.Impl
             }
         }
 
-        public AccountDTO PutAccountTransaction(LoanApplicationDTO loanApplicationDTO, long id)
+        public AccountDTO PutAccountTransaction(LoanApplicationDTO loanApplicationDTO, long id, LoanDTO loan)
         {
             Account account = _accountRepository.FindById(id);
             var newTransaction = new Models.Transaction
             {
                 Type = TransactionType.CREDIT,
                 Amount = loanApplicationDTO.Amount,
-                Description = "Loan approved",
+                Description = "Loan "+ loan.Name+" approved",
                 Date = DateTime.Now,
                 AccountId = account.Id,
             };

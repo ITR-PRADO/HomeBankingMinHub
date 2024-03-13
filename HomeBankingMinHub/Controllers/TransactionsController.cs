@@ -20,7 +20,8 @@ namespace HomeBankingMinHub.Controllers
         }
 
 
-        [Authorize(policy: "ClientOnly")]
+        //[Authorize(policy: "ClientOnly")]
+        [Authorize]
         [HttpPost]
         public IActionResult PostTransaction([FromBody] TransferDTO transferDTO)
         {
@@ -33,21 +34,21 @@ namespace HomeBankingMinHub.Controllers
                     return Forbid();
                 }
 
-                if ( transferDTO.Amount<=0|| transferDTO.Description.IsNullOrEmpty()) return StatusCode(400,"Datos incompletos");
+                if ( transferDTO.Amount<=0|| transferDTO.Description.IsNullOrEmpty()) return StatusCode(400, "Transfer field empty, verify the information");
 
-                if(transferDTO.FromAccountNumber.IsNullOrEmpty()||transferDTO.ToAccountNumber.IsNullOrEmpty()) return StatusCode(400, "Datos de numero de cuenta vacios");
+                if(transferDTO.FromAccountNumber.IsNullOrEmpty()||transferDTO.ToAccountNumber.IsNullOrEmpty()) return StatusCode(400, "Accounts field empty, verify the information");
 
                 AccountDTO accountFrom = _accountService.GetAccountByNumber(transferDTO.FromAccountNumber);
-                if (accountFrom == null) return StatusCode(404, "No existe la cuenta de origen");
+                if (accountFrom == null) return StatusCode(404, "The source account does not exist");
 
                 AccountDTO accountTo = _accountService.GetAccountByNumber(transferDTO.ToAccountNumber);
-                if (accountTo == null) return StatusCode(404, "No existe la cuenta de destino");
+                if (accountTo == null) return StatusCode(404, "Destination account does not exist");
 
-                if (accountFrom.ClientId != idUserValue) return StatusCode(403, "Cuenta incorrecta");
+                if (accountFrom.ClientId != idUserValue) return StatusCode(403, "incorrect account");
 
-                if (accountFrom.Balance < transferDTO.Amount) return StatusCode(403, "Cuenta sin fondos");
+                if (accountFrom.Balance < transferDTO.Amount) return StatusCode(403, "Insufficient fonts");
 
-                if (transferDTO.FromAccountNumber.Equals(transferDTO.ToAccountNumber)) return StatusCode(403, "Las cuentas de origen y destino son la misma");
+                if (transferDTO.FromAccountNumber.Equals(transferDTO.ToAccountNumber)) return StatusCode(403, "The source and destination accounts are the same");
                 _accountService.SetTransaction(accountFrom, accountTo,transferDTO);
                 return Created();
             }

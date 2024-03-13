@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using HomeBankingMinHub.Services;
+using HomeBankingMinHub.Dtos;
 
 namespace HomeBankingMinHub.Controllers
 {
@@ -22,7 +23,7 @@ namespace HomeBankingMinHub.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] Client client)
+        public async Task<IActionResult> Login([FromBody] LoginDTO client)
         {
             try
             {

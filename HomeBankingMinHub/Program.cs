@@ -4,13 +4,59 @@ using HomeBankingMinHub.Repositories.Impl;
 using HomeBankingMinHub.Services;
 using HomeBankingMinHub.Services.Impl;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
+var myAllowSpesificOrigin = "_myAllowSpesificOrigin";
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorPages();
+//------Add Cors-----
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(myAllowSpesificOrigin, policy =>
+    {
+        policy.WithOrigins("http://localhost:5062")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
+//----Autenticación por coockie---
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+      .AddCookie(options =>
+      {
+          options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+          options.LoginPath = new PathString("/index.html");
+      });
+
+//----Autenticación por JWT---
+
+//var secretKey = builder.Configuration.GetValue<string>("secret");
+
+//builder.Services.AddAuthentication(auth =>
+//{
+//    auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//}).AddJwtBearer(jwt =>
+//{
+//    jwt.RequireHttpsMetadata = false;
+//    jwt.SaveToken = true;
+//    jwt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+//    {
+//        ValidateIssuerSigningKey = true,
+//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
+//        ValidateIssuer = false,
+//        ValidateAudience = false,
+//    };
+//});
+
+
+
+
 
 builder.Services.AddDbContext<HomeBankingContext>(options => 
 options.UseSqlServer(builder.Configuration.GetConnectionString("HomeBankingConexion")));
@@ -42,12 +88,7 @@ builder.Services.AddSwaggerGen(
 //}
 );
 
-//autenticación
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-      .AddCookie(options =>      {
-          options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-          options.LoginPath = new PathString("/index.html");
-      });
+
 
 //autorización
 builder.Services.AddAuthorization(options =>
